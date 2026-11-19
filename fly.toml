@@ -1,0 +1,43 @@
+# Fly.io Deployment Manifest — VériCar Europe SaaS (Paris CDG)
+# Commandes de mise en ligne :
+#   fly launch --no-deploy --region cdg
+#   fly volumes create vericar_data --region cdg --size 1
+#   fly secrets set APP_URL=https://votre-app.fly.dev ADMIN_EMAIL=... ADMIN_PASSWORD=...
+#   fly deploy
+
+app = "vericar-europe"
+primary_region = "cdg"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "3001"
+  DATA_DIR = "/app/data"
+  TRUST_PROXY = "1"
+  SIGNUP_BONUS_CREDITS = "1"
+  ALLOW_SANDBOX_BILLING = "true"
+
+[mounts]
+  source = "vericar_data"
+  destination = "/app/data"
+
+[http_service]
+  internal_port = 3001
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+  [[http_service.checks]]
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "15s"
+    method = "GET"
+    path = "/api/health"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

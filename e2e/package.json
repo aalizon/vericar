@@ -1,0 +1,21 @@
+{
+  "name": "vericar-e2e",
+  "version": "1.0.0",
+  "description": "Opaque-box 4-tier E2E test suite (HTTP API + Chromium) for VériCar Europe",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "test": "node --test --test-concurrency=1 tests/tier1-*.test.js tests/tier2-*.test.js tests/tier3-*.test.js tests/tier4-*.test.js",
+    "test:smoke": "node --test --test-concurrency=1 tests/smoke.test.js",
+    "test:tier1": "node --test --test-concurrency=1 tests/tier1-*.test.js",
+    "test:tier2": "node --test --test-concurrency=1 tests/tier2-*.test.js",
+    "test:tier3": "node --test --test-concurrency=1 tests/tier3-*.test.js",
+    "test:tier4": "node --test --test-concurrency=1 tests/tier4-*.test.js"
+  },
+  "dependencies": {
+    "playwright-core": "^1.65.1"
+  }
+}

@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin
+Disallow: /compte
+Disallow: /mes-rapports
+Disallow: /rapport/
+Disallow: /r/
+
+Sitemap: /sitemap.xml

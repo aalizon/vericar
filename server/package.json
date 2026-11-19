@@ -1,0 +1,20 @@
+{
+  "name": "vericar-server",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Backend API SaaS d'agrégation multi-pays pour VériCar Europe",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "test": "node --test tests/vericar.test.js tests/saas-core.test.js",
+    "test:live": "RUN_LIVE_TESTS=1 node --test tests/live.test.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  }
+}

@@ -1,0 +1,40 @@
+# Render Blueprint — VériCar Europe SaaS
+# NOTE : Render exige le plan `starter` (ou supérieur) pour monter un disque
+# persistant (`disk:`). Pour un essai éphémère sur le plan `free`, changez
+# `plan: free` et supprimez temporairement le bloc `disk:` (les données SQLite
+# seront réinitialisées à chaque redéploiement en plan gratuit).
+services:
+  - type: web
+    name: vericar-europe
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    region: frankfurt
+    plan: starter
+    healthCheckPath: /api/health
+    disk:
+      name: vericar-data
+      mountPath: /app/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3001"
+      - key: DATA_DIR
+        value: /app/data
+      - key: TRUST_PROXY
+        value: "1"
+      - key: APP_URL
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: ALLOW_SANDBOX_BILLING
+        value: "true"
+      - key: SIGNUP_BONUS_CREDITS
+        value: "1"

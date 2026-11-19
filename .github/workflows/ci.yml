@@ -1,0 +1,89 @@
+name: CI — VériCar Europe
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify-app:
+    name: Lint, Build, API Tests & Headless Chromium E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            server/package-lock.json
+            client/package-lock.json
+            e2e/package-lock.json
+
+      - name: Install server, client & e2e dependencies
+        run: |
+          npm --prefix server ci
+          npm --prefix client ci
+          npm --prefix e2e ci
+
+      - name: Lint frontend (oxlint)
+        run: npm run lint
+
+      - name: Build frontend (Vite production bundle)
+        run: npm run build
+
+      - name: Run deterministic backend unit & SaaS integration tests
+        run: npm test
+
+      - name: Install Chromium for Playwright E2E
+        run: npx --prefix e2e playwright-core install chromium --with-deps
+
+      - name: Run Headless Chromium 4-Tier E2E Suite
+        run: npm run test:e2e
+
+  docker-smoke:
+    name: Docker Build & Runtime Health Smoke Test
+    runs-on: ubuntu-latest
+    needs: verify-app
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build production Docker image
+        run: docker build -t vericar-europe:ci .
+
+      - name: Run container & verify /api/health, /api/ready, and SPA HTML
+        run: |
+          docker run -d --name vericar-ci -p 3001:3001 \
+            -e ALLOW_SANDBOX_BILLING=true \
+            -e APP_URL=http://127.0.0.1:3001 \
+            vericar-europe:ci
+
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:3001/api/health > /dev/null; then
+              break
+            fi
+            sleep 1
+          done
+
+          curl -fsS http://127.0.0.1:3001/api/health | grep -q '"status":"ok"'
+          curl -fsS http://127.0.0.1:3001/api/ready | grep -q '"status":"ready"'
+          curl -fsS http://127.0.0.1:3001/api/ready | grep -q '"db":"ok"'
+          curl -fsS http://127.0.0.1:3001/ | grep -q 'VériCar Europe'
+
+      - name: Container logs on failure
+        if: failure()
+        run: docker logs vericar-ci
+
+      - name: Cleanup container
+        if: always()
+        run: docker rm -f vericar-ci || true

@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+e2e/node_modules/
+
+# Build & runtime outputs
+client/dist/
+server/data/
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+server/.env
+server/.env.*
+client/.env
+client/.env.*
+
+# Logs & OS junk
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+coverage/
+e2e/test-results/
+e2e/playwright-report/
